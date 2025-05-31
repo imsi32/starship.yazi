@@ -59,7 +59,8 @@ return {
 
         -- Replace default header widget
         Header:children_remove(1, Header.LEFT)
-        Header:children_add(function(self)
+
+        local function get_starship(self)
             local max = self._area.w - self._right_width
             if max <= 0 then
                 return ""
@@ -80,7 +81,9 @@ return {
             end
 
             return ui.Line.parse(output)
-        end, 1000, Header.LEFT)
+        end
+
+        Header:children_add(get_starship(), 1000, Header.LEFT)
 
         -- Pass current working directory and custom config path (if specified) to the plugin's entry point
         ---Callback for subscribers to update the prompt
@@ -99,6 +102,12 @@ return {
         -- Subscribe to events
         ps.sub("cd", callback)
         ps.sub("tab", callback)
+
+        if Yatline then
+            function Yatline.line.get:starship()
+                return get_starship()
+            end
+        end
     end,
 
     entry = function(_, job)
